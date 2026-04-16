@@ -11,12 +11,14 @@ import {
   Crown,
   Download,
   Eye,
+  EyeOff,
   FileText,
   Heart,
   Headphones,
   KeyRound,
   Home,
   Lock,
+  LogOut,
   MapPin,
   Menu,
   MessageCircle,
@@ -30,6 +32,7 @@ import {
   Star,
   Share2,
   Settings,
+  Trash2,
   Upload,
   UserRound,
   Users,
@@ -204,6 +207,12 @@ function App() {
                 activeTab={activeTab}
                 likedIds={likedIds}
                 onLike={toggleLike}
+                onLogout={() => {
+                  setIsSignedIn(false);
+                  setShowOnboarding(true);
+                  setShowSplash(false);
+                  setActiveTab("home");
+                }}
                 onTabChange={setActiveTab}
               />
             )
@@ -655,7 +664,7 @@ function PreferenceGroup({ label, onChange, options, value }) {
   );
 }
 
-function MobileShell({ activeTab, likedIds, onLike, onTabChange }) {
+function MobileShell({ activeTab, likedIds, onLike, onLogout, onTabChange }) {
   const [selectedProfileId, setSelectedProfileId] = useState(null);
   const [showFilter, setShowFilter] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -663,6 +672,7 @@ function MobileShell({ activeTab, likedIds, onLike, onTabChange }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isPaidMember, setIsPaidMember] = useState(false);
+  const [utilityScreen, setUtilityScreen] = useState(null);
   const [profileStats, setProfileStats] = useState(INITIAL_PROFILE_STATS);
   const selectedProfile = profiles.find((profile) => profile.id === selectedProfileId);
   const openPremium = () => {
@@ -690,6 +700,14 @@ function MobileShell({ activeTab, likedIds, onLike, onTabChange }) {
     return <NotificationScreen onBack={() => setShowNotifications(false)} onOpenProfile={setSelectedProfileId} />;
   }
 
+  if (utilityScreen === "support") {
+    return <SupportScreen onBack={() => setUtilityScreen(null)} />;
+  }
+
+  if (utilityScreen === "delete-profile") {
+    return <DeleteProfileScreen onBack={() => setUtilityScreen(null)} onLogout={onLogout} />;
+  }
+
   if (selectedProfile) {
     return (
       <div className="screen-layer">
@@ -714,7 +732,20 @@ function MobileShell({ activeTab, likedIds, onLike, onTabChange }) {
         onOpenSearch={() => setShowSearch(true)}
         onOpenSidebar={() => setShowSidebar(true)}
       />
-      {showSidebar ? <SidebarMenu onClose={() => setShowSidebar(false)} /> : null}
+      {showSidebar ? (
+        <SidebarMenu
+          onClose={() => setShowSidebar(false)}
+          onLogout={onLogout}
+          onOpenDelete={() => {
+            setShowSidebar(false);
+            setUtilityScreen("delete-profile");
+          }}
+          onOpenSupport={() => {
+            setShowSidebar(false);
+            setUtilityScreen("support");
+          }}
+        />
+      ) : null}
       {activeTab === "home" ? (
         <HomeView
           likedIds={likedIds}
@@ -764,7 +795,7 @@ function AppHeader({ onOpenNotifications, onOpenSearch, onOpenSidebar }) {
   );
 }
 
-function SidebarMenu({ onClose }) {
+function SidebarMenu({ onClose, onLogout, onOpenDelete, onOpenSupport }) {
   const [openGroup, setOpenGroup] = useState("Matches");
   const groups = {
     Matches: ["My Matches", "Viewed My Profile", "Astrology Matches", "Shortlisted"],
@@ -799,8 +830,141 @@ function SidebarMenu({ onClose }) {
             ) : null}
           </section>
         ))}
+        <div className="sidebar-actions">
+          <button onClick={onOpenSupport} type="button">
+            <Headphones size={18} />
+            Support
+          </button>
+          <button onClick={onOpenDelete} type="button">
+            <Trash2 size={18} />
+            Delete profile
+          </button>
+          <button className="logout" onClick={onLogout} type="button">
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
       </aside>
     </div>
+  );
+}
+
+function SupportScreen({ onBack }) {
+  const supportOptions = [
+    {
+      icon: <MessageCircle size={20} />,
+      title: "Chat with support",
+      body: "Ask CuboidSoft support about verification, profile edits, or match flow.",
+      action: "Start chat",
+    },
+    {
+      icon: <Camera size={20} />,
+      title: "Photo or profile issue",
+      body: "Get help with blurred photos, image approval, and profile visibility.",
+      action: "Raise ticket",
+    },
+    {
+      icon: <FileText size={20} />,
+      title: "Kundli support",
+      body: "Request help for Kundli upload, download, or horoscope matching details.",
+      action: "Get help",
+    },
+  ];
+
+  return (
+    <div className="screen support-screen">
+      <UtilityTopBar onBack={onBack} title="Support" />
+      <div className="content-scroll utility-scroll">
+        <section className="utility-hero support">
+          <span>
+            <Headphones size={28} />
+          </span>
+          <p>Sonthangal support</p>
+          <h2>We are here for profile, photo, and Kundli help</h2>
+        </section>
+
+        <div className="support-option-list">
+          {supportOptions.map((option) => (
+            <article className="support-option" key={option.title}>
+              <span>{option.icon}</span>
+              <div>
+                <h3>{option.title}</h3>
+                <p>{option.body}</p>
+                <button type="button">{option.action}</button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <section className="support-contact-card">
+          <p>Contact CuboidSoft</p>
+          <h3>support@cuboidsoft.com</h3>
+          <span>Response time: 24 business hours</span>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function DeleteProfileScreen({ onBack, onLogout }) {
+  const [confirmText, setConfirmText] = useState("");
+  const canDelete = confirmText.trim().toUpperCase() === "DELETE";
+
+  return (
+    <div className="screen delete-profile-screen">
+      <UtilityTopBar onBack={onBack} title="Delete Profile" />
+      <div className="content-scroll utility-scroll">
+        <section className="utility-hero danger">
+          <span>
+            <Trash2 size={28} />
+          </span>
+          <p>Profile deletion</p>
+          <h2>Delete request will remove profile visibility</h2>
+        </section>
+
+        <section className="delete-warning-card">
+          <h3>Before deleting</h3>
+          <div className="delete-warning-list">
+            <span>
+              <Check size={15} />
+              Your profile will be hidden from matches.
+            </span>
+            <span>
+              <Check size={15} />
+              Active interests and Kundli access will be stopped.
+            </span>
+            <span>
+              <Check size={15} />
+              Support may contact you once before final removal.
+            </span>
+          </div>
+        </section>
+
+        <label className="delete-confirm-field">
+          <span>Type DELETE to confirm</span>
+          <input onChange={(event) => setConfirmText(event.target.value)} placeholder="DELETE" value={confirmText} />
+        </label>
+
+        <button className="delete-profile-button" disabled={!canDelete} onClick={onLogout} type="button">
+          Submit delete request
+          <Trash2 size={17} />
+        </button>
+        <button className="modal-secondary" onClick={onBack} type="button">
+          Keep my profile
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function UtilityTopBar({ onBack, title }) {
+  return (
+    <header className="utility-top-bar">
+      <button aria-label="Go back" onClick={onBack} type="button">
+        <ArrowLeft size={20} />
+      </button>
+      <h2>{title}</h2>
+    </header>
   );
 }
 
@@ -1622,6 +1786,7 @@ function MessagesView() {
 }
 
 function ProfileView({ isPaidMember, onMarkPaid, onOpenPremium, profileStats }) {
+  const [isPhotoVisible, setIsPhotoVisible] = useState(false);
   const checks = ["Photo ID", "Education", "Horoscope", "Family contact"];
   const loggedInProfile = profiles[3];
   const stats = [
@@ -1637,7 +1802,23 @@ function ProfileView({ isPaidMember, onMarkPaid, onOpenPremium, profileStats }) 
         <button aria-label="Update photo" className="camera-button" type="button">
           <Camera size={18} />
         </button>
-        <img alt="Logged in member" src={loggedInProfile.image} />
+        <div className={isPhotoVisible ? "profile-photo-privacy" : "profile-photo-privacy hidden"}>
+          <img alt="Logged in member" src={loggedInProfile.image} />
+          {!isPhotoVisible ? (
+            <span>
+              <EyeOff size={18} />
+              Photo hidden
+            </span>
+          ) : null}
+        </div>
+        <button
+          className="photo-visibility-toggle"
+          onClick={() => setIsPhotoVisible((visible) => !visible)}
+          type="button"
+        >
+          {isPhotoVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+          {isPhotoVisible ? "Blur profile image" : "Show profile image"}
+        </button>
         <span className={isPaidMember ? "profile-plan-badge paid" : "profile-plan-badge"}>
           {isPaidMember ? "Paid member" : "Free member"}
         </span>
@@ -1703,7 +1884,7 @@ function ProfileView({ isPaidMember, onMarkPaid, onOpenPremium, profileStats }) 
 
       <section className="privacy-list">
         <h3>Privacy controls</h3>
-        <PrivacyRow icon={<Lock size={18} />} label="Photo visibility" value="Approved matches" />
+        <PrivacyRow icon={<Lock size={18} />} label="Photo visibility" value={isPhotoVisible ? "Visible in preview" : "Blurred for privacy"} />
         <PrivacyRow icon={<Users size={18} />} label="Family number" value="After interest" />
         <PrivacyRow icon={<ShieldCheck size={18} />} label="Profile status" value="Verified" />
       </section>
