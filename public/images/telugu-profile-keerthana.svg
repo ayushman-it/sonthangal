@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" role="img" aria-label="Keerthana Telugu profile">
+  <rect width="720" height="900" fill="#fff4d2"/>
+  <circle cx="126" cy="148" r="120" fill="#8a2121" opacity=".18"/>
+  <path d="M110 900c44-220 127-332 250-332s206 112 250 332H110z" fill="#171717"/>
+  <path d="M226 514c23 115 78 184 134 184s111-69 134-184c-19-63-64-96-134-96s-115 33-134 96z" fill="#efbd8d"/>
+  <path d="M196 526c-9-152 46-278 164-278s173 126 164 278c-42-78-96-116-164-116s-122 38-164 116z" fill="#221614"/>
+  <circle cx="314" cy="506" r="9" fill="#171717"/>
+  <circle cx="406" cy="506" r="9" fill="#171717"/>
+  <path d="M333 584c19 14 35 14 54 0" fill="none" stroke="#8a2121" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="360" cy="473" r="8" fill="#8a2121"/>
+  <path d="M185 900c85-132 201-190 347-174 18 53 34 111 48 174H185z" fill="#8a2121"/>
+</svg>

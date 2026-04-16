@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" role="img" aria-label="Sravani Telugu profile">
+  <rect width="720" height="900" fill="#f4f4f4"/>
+  <circle cx="570" cy="142" r="140" fill="#fff4d2"/>
+  <path d="M116 900c40-228 123-346 244-346s204 118 244 346H116z" fill="#8a2121"/>
+  <path d="M232 500c19 119 72 190 128 190s109-71 128-190c-24-58-66-88-128-88s-104 30-128 88z" fill="#eab07c"/>
+  <path d="M204 505c-9-138 40-250 156-250s165 112 156 250c-37-58-89-86-156-86s-119 28-156 86z" fill="#171717"/>
+  <circle cx="315" cy="493" r="9" fill="#171717"/>
+  <circle cx="405" cy="493" r="9" fill="#171717"/>
+  <path d="M334 570c19 15 33 15 52 0" fill="none" stroke="#8a2121" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="360" cy="464" r="8" fill="#8a2121"/>
+  <path d="M206 900c82-137 189-198 322-182 16 54 30 115 42 182H206z" fill="#c99a2e"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" role="img" aria-label="Madhavi Telugu profile">
+  <rect width="720" height="900" fill="#ffffff"/>
+  <circle cx="604" cy="182" r="132" fill="#c99a2e" opacity=".32"/>
+  <path d="M118 900c41-231 122-348 242-348s201 117 242 348H118z" fill="#c99a2e"/>
+  <path d="M230 504c22 118 76 189 130 189s108-71 130-189c-20-61-64-93-130-93s-110 32-130 93z" fill="#e9ad78"/>
+  <path d="M199 512c-8-153 45-276 161-276s169 123 161 276c-39-76-93-113-161-113s-122 37-161 113z" fill="#171717"/>
+  <circle cx="316" cy="499" r="9" fill="#171717"/>
+  <circle cx="404" cy="499" r="9" fill="#171717"/>
+  <path d="M335 578c18 14 32 14 50 0" fill="none" stroke="#8a2121" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="360" cy="465" r="8" fill="#8a2121"/>
+  <path d="M176 900c90-146 209-211 356-194 20 59 36 124 48 194H176z" fill="#8a2121"/>
+</svg>
