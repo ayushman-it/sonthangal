@@ -3709,19 +3709,74 @@ button {
   font-weight: 500;
 }
 
-.photo-visibility-toggle {
-  min-height: 36px;
+.photo-switch {
+  width: min(100%, 238px);
+  min-height: 48px;
   margin-top: 12px;
-  border: 1px solid rgba(255, 244, 210, 0.42);
+  border: 1px solid rgba(255, 244, 210, 0.34);
   border-radius: 999px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 0 13px;
-  color: var(--gold-soft);
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 6px 5px 14px;
+  color: var(--white);
   background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.photo-switch span {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: center;
+  column-gap: 7px;
+  text-align: left;
   font-size: 0.78rem;
   font-weight: 500;
+}
+
+.photo-switch small {
+  grid-column: 2;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+
+.photo-switch i {
+  position: relative;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: background 180ms ease;
+}
+
+.photo-switch i::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+  transition: transform 180ms ease;
+}
+
+.photo-switch.active {
+  border-color: rgba(255, 244, 210, 0.58);
+  background: rgba(255, 244, 210, 0.16);
+}
+
+.photo-switch.active i {
+  background: var(--gold-soft);
+}
+
+.photo-switch.active i::after {
+  transform: translateX(20px);
+  background: var(--burgundy);
 }
 
 .profile-hero h2 {

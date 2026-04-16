@@ -1812,12 +1812,18 @@ function ProfileView({ isPaidMember, onMarkPaid, onOpenPremium, profileStats }) 
           ) : null}
         </div>
         <button
-          className="photo-visibility-toggle"
+          aria-checked={isPhotoVisible}
+          className={isPhotoVisible ? "photo-switch active" : "photo-switch"}
           onClick={() => setIsPhotoVisible((visible) => !visible)}
+          role="switch"
           type="button"
         >
-          {isPhotoVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-          {isPhotoVisible ? "Blur profile image" : "Show profile image"}
+          <span>
+            {isPhotoVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+            Profile image
+            <small>{isPhotoVisible ? "Visible" : "Blurred"}</small>
+          </span>
+          <i aria-hidden="true" />
         </button>
         <span className={isPaidMember ? "profile-plan-badge paid" : "profile-plan-badge"}>
           {isPaidMember ? "Paid member" : "Free member"}
