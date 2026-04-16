@@ -1,4 +1,4 @@
-const CACHE_NAME = "sonthangal-matrimony-v1";
+const CACHE_NAME = "sonthangal-matrimony-v2";
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const APP_SHELL = [BASE_PATH, `${BASE_PATH}manifest.webmanifest`, `${BASE_PATH}icons/icon.svg`];
 
@@ -23,6 +23,23 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+
+          return networkResponse;
+        })
+        .catch(() => caches.match(BASE_PATH)),
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -30,6 +47,10 @@ self.addEventListener("fetch", (event) => {
       }
 
       return fetch(event.request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type === "opaque") {
+          return networkResponse;
+        }
+
         const responseClone = networkResponse.clone();
 
         caches.open(CACHE_NAME).then((cache) => {
