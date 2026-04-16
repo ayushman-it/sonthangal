@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" role="img" aria-label="Telugu bride portrait">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff4d2"/>
+      <stop offset="1" stop-color="#8a2121"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="1200" fill="url(#bg)"/>
+  <circle cx="145" cy="154" r="112" fill="none" stroke="#c99a2e" stroke-width="18" opacity=".45"/>
+  <circle cx="748" cy="260" r="168" fill="none" stroke="#ffffff" stroke-width="22" opacity=".22"/>
+  <path d="M180 1090c50-300 155-452 315-452s264 152 315 452H180z" fill="#8a2121"/>
+  <path d="M290 675c25 145 110 231 205 231s180-86 205-231c-24-80-88-128-205-128s-181 48-205 128z" fill="#f2ba85"/>
+  <path d="M284 624c16-172 99-268 211-268s197 96 215 268c-47-51-119-81-215-81s-165 30-211 81z" fill="#1b1412"/>
+  <path d="M256 702c-14-177 55-341 239-341s256 164 239 341c-55-97-134-141-239-141S310 605 256 702z" fill="#1b1412"/>
+  <circle cx="418" cy="632" r="12" fill="#1b1412"/>
+  <circle cx="572" cy="632" r="12" fill="#1b1412"/>
+  <path d="M447 732c31 24 66 24 97 0" fill="none" stroke="#8a2121" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="495" cy="590" r="12" fill="#8a2121"/>
+  <path d="M312 1007c69-126 167-188 294-188 76 0 144 22 203 65 0 0-74 180-73 181H312z" fill="#fff4d2"/>
+  <path d="M248 1088c124-185 296-271 517-258 28 82 48 168 60 258H248z" fill="#c99a2e"/>
+  <path d="M344 483c61-59 111-88 151-88s90 29 151 88" fill="none" stroke="#c99a2e" stroke-width="23" stroke-linecap="round"/>
+</svg>

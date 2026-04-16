@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Sonthangal">
+  <rect width="512" height="512" rx="112" fill="#8A2121"/>
+  <circle cx="256" cy="204" r="96" fill="#FFF4D2"/>
+  <path d="M136 386c32-70 72-106 120-106s88 36 120 106" fill="none" stroke="#FFF4D2" stroke-width="42" stroke-linecap="round"/>
+  <path d="M211 202c14 21 29 32 45 32s31-11 45-32" fill="none" stroke="#8A2121" stroke-width="24" stroke-linecap="round"/>
+  <path d="M256 98l24 42 48 9-33 36 6 49-45-21-45 21 6-49-33-36 48-9 24-42z" fill="#C99A2E"/>
+</svg>
