@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
+    "build:github-pages": "vite build --mode github-pages",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
