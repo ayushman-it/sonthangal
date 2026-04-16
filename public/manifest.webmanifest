@@ -2,15 +2,15 @@
   "name": "Sonthangal",
   "short_name": "Sonthangal",
   "description": "Telugu matrimony match flow with verified profiles and Kundli download, made by CuboidSoft.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#8A2121",
   "icons": [
     {
-      "src": "/icons/icon.svg",
+      "src": "icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -20,8 +20,8 @@
     {
       "name": "My Matches",
       "short_name": "Matches",
-      "url": "/?tab=matches",
-      "icons": [{ "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "url": "./?tab=matches",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
     }
   ]
 }
