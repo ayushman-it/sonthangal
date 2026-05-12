@@ -24,7 +24,6 @@ import {
   MessageCircle,
   Pencil,
   Plus,
-  Send,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -52,7 +51,6 @@ const FILTER_OPTION_GROUPS = [
 
 const RANGE_FILTERS = [
   { key: "age", label: "Age", minLimit: 21, maxLimit: 36, unit: "yrs" },
-  { key: "weight", label: "Weight", minLimit: 40, maxLimit: 95, unit: "kg" },
 ];
 
 const INITIAL_FILTERS = {
@@ -65,7 +63,41 @@ const INITIAL_FILTERS = {
 
 const INITIAL_RANGES = {
   age: [25, 31],
-  weight: [45, 72],
+};
+
+const HOME_FEATURES = [
+  "Verified profiles for serious marriage search",
+  "Horoscope and star-based match discovery",
+  "Family-friendly profile privacy controls",
+  "Simple Telugu community filters and recently viewed profiles",
+];
+
+const HOROSCOPE_TYPES = ["Sutham", "Sevvai", "Ragu", "Kethu", "Ragu+Kethu+Sevvai", "Unknown"];
+
+const INITIAL_SETUP_DATA = {
+  maritalStatus: "Never married",
+  motherTongue: "Telugu",
+  religion: "Hindu",
+  caste: "",
+  division: "",
+  subcaste: "",
+  height: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  dateOfBirth: "",
+  star: "",
+  zodiac: "",
+  birthHour: "",
+  birthMinute: "",
+  birthMeridiem: "AM",
+  birthPlace: "",
+  horoscopeType: "",
+  horoscopeFile: null,
+  education: "",
+  occupation: "",
+  annualIncome: "",
+  workLocation: "",
 };
 
 const INITIAL_PROFILE_STATS = {
@@ -129,6 +161,14 @@ const CLIENT_FEATURES = [
   "Search, filters, notification, and sidebar flow",
   "Kundli PDF download with premium lock",
   "PWA-ready installable mobile experience",
+];
+
+const CLIENT_CHANGE_SUMMARY = [
+  "Home hero updated with feature bullets and Sign In / Free Register CTAs only.",
+  "Registration flow now includes DOB, normal birth time inputs, horoscope type, optional upload, back buttons, and preview confirmation.",
+  "Dashboard mobile view now shows Pending Actions near the top with completion percentage logic.",
+  "Search filters cleaned by removing weight and height filters.",
+  "Recently Viewed tab, star match disclaimer, wedding imagery, and terms page content updated.",
 ];
 
 const VERIFICATION_STEPS = [
@@ -237,6 +277,19 @@ function ClientFlowOverview() {
               <span key={feature}>
                 <Check size={15} />
                 {feature}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="client-panel client-fixes-panel">
+          <p>Client feedback fixes</p>
+          <h2>Latest changes implemented in this update</h2>
+          <div className="feature-list">
+            {CLIENT_CHANGE_SUMMARY.map((fix) => (
+              <span key={fix}>
+                <Check size={15} />
+                {fix}
               </span>
             ))}
           </div>
@@ -373,6 +426,7 @@ function SplashIntro({ onFinish }) {
 }
 
 function Login({ onSuccess }) {
+  const [mode, setMode] = useState("landing");
   const [profileFor, setProfileFor] = useState("");
   const [showProfileForOptions, setShowProfileForOptions] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -382,16 +436,11 @@ function Login({ onSuccess }) {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  async function completeAuth() {
     setIsLoading(true);
     setError("");
 
     try {
-      if (!profileFor || !fullName || !phoneNumber || !acceptedTerms) {
-        throw new Error("Complete the required registration fields.");
-      }
-
       await signInWithEmail({
         email: demoCredentials.email,
         password: demoCredentials.password,
@@ -402,6 +451,62 @@ function Login({ onSuccess }) {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!profileFor || !fullName || !phoneNumber || !acceptedTerms) {
+      setError("Complete the required registration fields.");
+      return;
+    }
+
+    await completeAuth();
+  }
+
+  if (mode === "terms") {
+    return <TermsScreen onBack={() => setMode("register")} />;
+  }
+
+  if (mode === "landing") {
+    return (
+      <div className="screen home-entry-screen">
+        <section className="home-hero">
+          <img alt="South Indian wedding couple" src={brandImages.profileThree} />
+          <div className="home-hero-scrim" />
+          <div className="home-hero-content">
+            <BrandLogo />
+            <p>Trusted matrimony for Telugu families</p>
+            <h1>Find meaningful matches with horoscope-ready profiles</h1>
+            <ul>
+              {HOME_FEATURES.map((feature) => (
+                <li key={feature}>
+                  <Check size={16} />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            <div className="home-hero-actions">
+              <button className="secondary-hero-action" disabled={isLoading} onClick={completeAuth} type="button">
+                {isLoading ? "Signing in..." : "Sign In"}
+              </button>
+              <button className="primary-action" onClick={() => setMode("register")} type="button">
+                Free Register
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="faq-preview">
+          <img alt="South Indian wedding couple" src={brandImages.profileTwo} />
+          <div>
+            <p>Need help?</p>
+            <h2>Profile, horoscope, and privacy support in one place.</h2>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   return (
@@ -487,7 +592,10 @@ function Login({ onSuccess }) {
               type="checkbox"
             />
             <span>
-              Accept <strong>Terms & Conditions</strong>
+              Accept{" "}
+              <button className="terms-link" onClick={() => setMode("terms")} type="button">
+                Terms & Conditions
+              </button>
             </span>
           </label>
         </div>
@@ -505,10 +613,22 @@ function Login({ onSuccess }) {
 
 function Onboarding({ onComplete }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const steps = ["Basic", "Horoscope", "Professional", "Confirm"];
+  const [setupData, setSetupData] = useState(INITIAL_SETUP_DATA);
+  const [error, setError] = useState("");
+  const steps = ["Basic", "Horoscope", "Professional", "Preview"];
   const isLastStep = currentStep === steps.length - 1;
 
+  function updateField(field, value) {
+    setSetupData((current) => ({ ...current, [field]: value }));
+    setError("");
+  }
+
   function goNext() {
+    if (!validateSetupStep(currentStep, setupData)) {
+      setError("Please complete the required fields before continuing.");
+      return;
+    }
+
     if (isLastStep) {
       onComplete();
       return;
@@ -517,9 +637,18 @@ function Onboarding({ onComplete }) {
     setCurrentStep((step) => step + 1);
   }
 
+  function goBack() {
+    if (currentStep === 0) {
+      return;
+    }
+
+    setCurrentStep((step) => step - 1);
+    setError("");
+  }
+
   return (
     <div className="screen onboarding-screen">
-      <TopBar title="Complete Profile" />
+      <TopBar onBack={goBack} showBack={currentStep > 0} title="Complete Profile" />
       <div className="content-scroll setup-content">
         <SetupVisualHeader currentStep={currentStep} />
 
@@ -527,8 +656,14 @@ function Onboarding({ onComplete }) {
           {steps.map((step, index) => (
             <button
               className={index === currentStep ? "active" : index < currentStep ? "done" : ""}
+              disabled={index > currentStep}
               key={step}
-              onClick={() => setCurrentStep(index)}
+              onClick={() => {
+                if (index <= currentStep) {
+                  setCurrentStep(index);
+                  setError("");
+                }
+              }}
               type="button"
             >
               <span>{step}</span>
@@ -537,12 +672,17 @@ function Onboarding({ onComplete }) {
           ))}
         </div>
 
-        <SetupStep step={currentStep} />
+        <SetupStep data={setupData} onChange={updateField} step={currentStep} />
+        {error ? <p className="form-error setup-error">{error}</p> : null}
       </div>
 
       <div className="setup-footer">
+        <button className="setup-back" disabled={currentStep === 0} onClick={goBack} type="button">
+          <ArrowLeft size={18} />
+          Back
+        </button>
         <button className="primary-action setup-next" onClick={goNext} type="button">
-          {isLastStep ? "Finish Profile" : "Next"}
+          {isLastStep ? "Confirm" : "Next"}
           <ChevronRight size={18} />
         </button>
       </div>
@@ -553,9 +693,9 @@ function Onboarding({ onComplete }) {
 function SetupVisualHeader({ currentStep }) {
   const setupNotes = [
     "Start with family and basic profile details.",
-    "Add horoscope details for Kundli-ready matching.",
+    "Add birth and horoscope details for Kundli-ready matching.",
     "Share education and work details for better matches.",
-    "Review your profile before publishing.",
+    "Preview every detail before submitting.",
   ];
 
   return (
@@ -576,15 +716,49 @@ function SetupVisualHeader({ currentStep }) {
   );
 }
 
-function SetupStep({ step }) {
+function validateSetupStep(step, data) {
+  if (step === 1) {
+    return Boolean(
+      data.dateOfBirth &&
+        data.star &&
+        data.zodiac &&
+        data.birthHour &&
+        data.birthMinute &&
+        data.birthPlace &&
+        data.horoscopeType,
+    );
+  }
+
+  if (step === 2) {
+    return Boolean(data.education && data.occupation);
+  }
+
+  if (step === 3) {
+    return true;
+  }
+
+  return Boolean(
+    data.maritalStatus &&
+      data.motherTongue &&
+      data.religion &&
+      data.caste &&
+      data.division &&
+      data.password &&
+      data.confirmPassword,
+  );
+}
+
+function SetupStep({ data, onChange, step }) {
   if (step === 1) {
     return (
       <section className="setup-form">
-        <SetupField required label="Star" type="select" value="Please Select Star" />
-        <SetupField required label="Zodiac" type="select" value="Please Select Zodiac" />
-        <SetupField required label="Birth Time" value="Enter birth time" />
-        <SetupField required label="Birth Place" value="Enter birth place" />
-        <SetupField label="Kundli Status" type="select" value="Upload later" />
+        <SetupField required field="dateOfBirth" label="Date of Birth" onChange={onChange} type="date" value={data.dateOfBirth} />
+        <SetupField required field="star" label="Star" onChange={onChange} options={["Rohini", "Anuradha", "Revati", "Mrigashira"]} type="select" value={data.star} />
+        <SetupField required field="zodiac" label="Zodiac" onChange={onChange} options={["Mesha", "Vrushabha", "Mithuna", "Karkataka"]} type="select" value={data.zodiac} />
+        <TimeOfBirthField data={data} onChange={onChange} />
+        <SetupField required field="birthPlace" label="Birth Place" onChange={onChange} placeholder="Enter birth place" value={data.birthPlace} />
+        <SetupField required field="horoscopeType" label="Horoscope Type" onChange={onChange} options={HOROSCOPE_TYPES} type="select" value={data.horoscopeType} />
+        <SetupField field="horoscopeFile" label="Horoscope Upload" onChange={onChange} type="file" value={data.horoscopeFile} />
       </section>
     );
   }
@@ -592,55 +766,143 @@ function SetupStep({ step }) {
   if (step === 2) {
     return (
       <section className="setup-form">
-        <SetupField required label="Education" type="select" value="Please Select Education" />
-        <SetupField required label="Occupation" value="Enter occupation" />
-        <SetupField label="Annual Income" type="select" value="Please Select Income" />
-        <SetupField label="Work Location" value="Enter work location" />
+        <SetupField required field="education" label="Education" onChange={onChange} options={["Graduate", "Engineer", "Doctor", "Post Graduate"]} type="select" value={data.education} />
+        <SetupField required field="occupation" label="Occupation" onChange={onChange} placeholder="Enter occupation" value={data.occupation} />
+        <SetupField field="annualIncome" label="Annual Income" onChange={onChange} options={["Not specified", "5-10 LPA", "10-20 LPA", "20 LPA+"]} type="select" value={data.annualIncome} />
+        <SetupField field="workLocation" label="Work Location" onChange={onChange} placeholder="Enter work location" value={data.workLocation} />
       </section>
     );
   }
 
   if (step === 3) {
-    return (
-      <section className="confirm-panel">
-        <ShieldCheck size={30} />
-        <h2>Review and publish</h2>
-        <p>
-          Your basic, horoscope, and professional details are ready. You can
-          edit them anytime from your profile.
-        </p>
-      </section>
-    );
+    return <PreviewStep data={data} />;
   }
 
   return (
     <section className="setup-form">
-      <SetupField required label="Marital Status" type="select" value="Never married" />
-      <SetupField required label="Mother Tongue" type="select" value="Telugu" />
-      <SetupField required label="Religion" type="select" value="Hindu" />
-      <SetupField required label="Caste" type="select" value="Please Select Caste" />
-      <SetupField required label="Division" type="select" value="Please Select Division (Nadu)" />
-      <SetupField label="Subcaste" value="Enter Subcast" />
-      <SetupField label="Height (CM)" value="Enter your height in centimeters" />
-      <SetupField label="Email Address" value="Enter Email address" />
-      <SetupField required label="Password" type="password" value="Enter New Password" />
-      <SetupField required label="Confirm Password" value="Re-Enter password to confirm" />
+      <SetupField required field="maritalStatus" label="Marital Status" onChange={onChange} options={["Never married", "Divorced", "Widowed"]} type="select" value={data.maritalStatus} />
+      <SetupField required field="motherTongue" label="Mother Tongue" onChange={onChange} options={["Telugu", "Tamil", "Kannada"]} type="select" value={data.motherTongue} />
+      <SetupField required field="religion" label="Religion" onChange={onChange} options={["Hindu", "Christian", "Muslim"]} type="select" value={data.religion} />
+      <SetupField required field="caste" label="Caste" onChange={onChange} options={["Please Select Caste", "Reddy", "Kamma", "Naidu", "Brahmin"]} type="select" value={data.caste} />
+      <SetupField required field="division" label="Division" onChange={onChange} options={["Please Select Division (Nadu)", "North", "South", "East", "West"]} type="select" value={data.division} />
+      <SetupField field="subcaste" label="Subcaste" onChange={onChange} placeholder="Enter subcaste" value={data.subcaste} />
+      <SetupField field="height" label="Height (CM)" onChange={onChange} placeholder="Enter your height in centimeters" value={data.height} />
+      <SetupField field="email" label="Email Address" onChange={onChange} placeholder="Enter email address" type="email" value={data.email} />
+      <SetupField required field="password" label="Password" onChange={onChange} placeholder="Enter new password" type="password" value={data.password} />
+      <SetupField required field="confirmPassword" label="Confirm Password" onChange={onChange} placeholder="Re-enter password to confirm" type="password" value={data.confirmPassword} />
     </section>
   );
 }
 
-function SetupField({ label, required = false, type = "text", value }) {
+function SetupField({ field, label, onChange, options = [], placeholder = "", required = false, type = "text", value }) {
+  const inputId = `setup-${field}`;
+
   return (
-    <label className="setup-field">
-      <span>
+    <label className="setup-field" htmlFor={inputId}>
+      <span className="setup-label">
         {required ? <b>*</b> : null}
         {label}:
       </span>
-      <div>
-        <input readOnly type={type === "password" ? "password" : "text"} value={value} />
-        {type === "select" ? <ChevronRight size={16} /> : null}
+      <div className="setup-control">
+        {type === "select" ? (
+          <select id={inputId} onChange={(event) => onChange(field, event.target.value)} value={value}>
+            <option value="">Please select</option>
+            {options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        ) : type === "file" ? (
+          <input
+            id={inputId}
+            onChange={(event) => onChange(field, event.target.files?.[0] ?? null)}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+          />
+        ) : (
+          <input
+            id={inputId}
+            onChange={(event) => onChange(field, event.target.value)}
+            placeholder={placeholder}
+            type={type}
+            value={value}
+          />
+        )}
       </div>
     </label>
+  );
+}
+
+function TimeOfBirthField({ data, onChange }) {
+  return (
+    <div className="setup-field time-field">
+      <span className="setup-label">
+        <b>*</b>
+        Time of Birth:
+      </span>
+      <div className="birth-time-grid">
+        <input
+          aria-label="Birth hour"
+          inputMode="numeric"
+          onChange={(event) => onChange("birthHour", event.target.value)}
+          pattern="[0-9]*"
+          placeholder="HH"
+          type="text"
+          value={data.birthHour}
+        />
+        <input
+          aria-label="Birth minute"
+          inputMode="numeric"
+          onChange={(event) => onChange("birthMinute", event.target.value)}
+          pattern="[0-9]*"
+          placeholder="MM"
+          type="text"
+          value={data.birthMinute}
+        />
+        <select aria-label="AM or PM" onChange={(event) => onChange("birthMeridiem", event.target.value)} value={data.birthMeridiem}>
+          <option>AM</option>
+          <option>PM</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
+function PreviewStep({ data }) {
+  const previewRows = [
+    ["Marital Status", data.maritalStatus],
+    ["Mother Tongue", data.motherTongue],
+    ["Religion", data.religion],
+    ["Caste", data.caste],
+    ["Division", data.division],
+    ["Date of Birth", data.dateOfBirth],
+    ["Birth Time", `${data.birthHour || "--"}:${data.birthMinute || "--"} ${data.birthMeridiem}`],
+    ["Birth Place", data.birthPlace],
+    ["Star", data.star],
+    ["Zodiac", data.zodiac],
+    ["Horoscope Type", data.horoscopeType],
+    ["Horoscope Upload", data.horoscopeFile?.name || "Not uploaded"],
+    ["Education", data.education],
+    ["Occupation", data.occupation],
+    ["Annual Income", data.annualIncome || "Not specified"],
+    ["Work Location", data.workLocation || "Not specified"],
+  ];
+
+  return (
+    <section className="confirm-panel preview-panel">
+      <ShieldCheck size={30} />
+      <h2>Preview your profile</h2>
+      <p>Please confirm the details below. Horoscope upload is optional and can be added later.</p>
+      <div className="preview-grid">
+        {previewRows.map(([label, value]) => (
+          <div key={label}>
+            <span>{label}</span>
+            <strong>{value || "Not specified"}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -661,6 +923,59 @@ function PreferenceGroup({ label, onChange, options, value }) {
         ))}
       </div>
     </section>
+  );
+}
+
+function TermsScreen({ onBack }) {
+  const sections = [
+    {
+      title: "Eligibility",
+      body: "Members must provide accurate personal, family, contact, and marriage-related information. Profiles created by parents or relatives should be created with the knowledge of the person represented.",
+    },
+    {
+      title: "Profile Information",
+      body: "Sonthangal may review profile details, photos, and horoscope files for quality and safety. We may hide or restrict any profile that contains misleading, incomplete, abusive, or unrelated content.",
+    },
+    {
+      title: "Communication",
+      body: "Members are responsible for verifying profile details before sharing personal information or proceeding with a match. System generated matches and horoscope indicators are guidance only.",
+    },
+    {
+      title: "Payments and Premium Access",
+      body: "Premium features, if purchased, provide access to selected contact, visibility, or horoscope features. Fees are subject to the plan selected and are handled according to the active service policy.",
+    },
+    {
+      title: "Privacy and Safety",
+      body: "Photos, phone numbers, horoscope documents, and family details should be used only for matrimonial discussion. Misuse, scraping, harassment, or sharing member data outside the platform is prohibited.",
+    },
+    {
+      title: "Account Removal",
+      body: "Members may request profile deletion or visibility changes from account settings. Some records may be retained when required for service, security, or legal purposes.",
+    },
+  ];
+
+  return (
+    <div className="screen terms-screen">
+      <UtilityTopBar onBack={onBack} title="Terms & Conditions" />
+      <div className="terms-scroll">
+        <section className="terms-hero">
+          <p>Sonthangal Matrimony</p>
+          <h1>Terms & Conditions</h1>
+          <span>Read these terms carefully before creating or using a matrimony profile.</span>
+        </section>
+        <div className="terms-list">
+          {sections.map((section, index) => (
+            <article key={section.title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h2>{section.title}</h2>
+                <p>{section.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -968,10 +1283,16 @@ function UtilityTopBar({ onBack, title }) {
   );
 }
 
-function TopBar({ title }) {
+function TopBar({ onBack, showBack = false, title }) {
   return (
     <header className="top-bar">
-      <BrandLogo compact />
+      {showBack ? (
+        <button aria-label="Back" className="top-back-button" onClick={onBack} type="button">
+          <ArrowLeft size={19} />
+        </button>
+      ) : (
+        <BrandLogo compact />
+      )}
       <h2>{title}</h2>
     </header>
   );
@@ -979,6 +1300,9 @@ function TopBar({ title }) {
 
 function HomeView({ likedIds, onLike, onOpenFilter, onOpenPremium, onOpenProfile }) {
   const matchedProfile = profiles[0];
+  const isPhotoMissing = true;
+  const isHoroscopeMissing = true;
+  const completionPercent = isPhotoMissing && isHoroscopeMissing ? 70 : isHoroscopeMissing ? 80 : isPhotoMissing ? 90 : 100;
 
   return (
     <>
@@ -990,6 +1314,33 @@ function HomeView({ likedIds, onLike, onOpenFilter, onOpenPremium, onOpenProfile
           </button>
         ))}
       </div>
+
+      <section className="quick-actions-panel pending-actions-panel">
+        <div className="pending-actions-header">
+          <div>
+            <h3>Pending Actions</h3>
+            <p>{completionPercent}% profile completed</p>
+          </div>
+          <strong>{completionPercent}%</strong>
+        </div>
+        <div className="completion-track" aria-label={`${completionPercent}% profile completed`}>
+          <span style={{ width: `${completionPercent}%` }} />
+        </div>
+        {isPhotoMissing ? (
+          <button type="button">
+            <Camera size={18} />
+            Add profile photo
+            <ChevronRight size={16} />
+          </button>
+        ) : null}
+        {isHoroscopeMissing ? (
+          <button type="button">
+            <FileText size={18} />
+            Upload horoscope
+            <ChevronRight size={16} />
+          </button>
+        ) : null}
+      </section>
 
       <PremiumBanner onOpenPremium={onOpenPremium} variant="home" />
 
@@ -1044,6 +1395,7 @@ function HomeView({ likedIds, onLike, onOpenFilter, onOpenPremium, onOpenProfile
           </div>
           <span>{profiles.length - 1}</span>
         </div>
+        <p className="star-disclaimer">System generated matches — please double-check with your astrologer.</p>
         <div className="star-grid">
           {profiles.slice(1).map((profile) => (
             <button className="star-card" key={profile.id} onClick={() => onOpenProfile(profile.id)} type="button">
@@ -1081,20 +1433,6 @@ function HomeView({ likedIds, onLike, onOpenFilter, onOpenPremium, onOpenProfile
             <span>Kundli-ready matches</span>
           </article>
         </div>
-      </section>
-
-      <section className="quick-actions-panel">
-        <h3>Complete faster</h3>
-        <button type="button">
-          <Camera size={18} />
-          Add profile photo
-          <ChevronRight size={16} />
-        </button>
-        <button type="button">
-          <FileText size={18} />
-          Upload Kundli details
-          <ChevronRight size={16} />
-        </button>
       </section>
 
       </div>
@@ -1294,17 +1632,6 @@ function FilterScreen({ onBack }) {
           />
         ))}
 
-        <section className="filter-block">
-          <div className="filter-section-title">
-            <h3>Height</h3>
-            <span>Preferred</span>
-          </div>
-          <div className="height-grid">
-            <FilterSelect label="From" value="4ft 10in / 147 cm" />
-            <FilterSelect label="To" value="5ft 8in / 173 cm" />
-          </div>
-        </section>
-
         {FILTER_OPTION_GROUPS.map((group) => (
           <FilterChipGroup
             key={group.label}
@@ -1368,18 +1695,6 @@ function RangeControl({ label, value, minLimit, maxLimit, unit, onChange }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function FilterSelect({ label, value }) {
-  return (
-    <div className="filter-select">
-      <span>{label} :</span>
-      <button type="button">
-        {value}
-        <ChevronRight size={15} />
-      </button>
-    </div>
   );
 }
 
@@ -1762,10 +2077,10 @@ function MessagesView() {
     <div className="content-scroll messages-view">
       <section className="status-band dark">
         <div>
-          <p>Inbox</p>
-          <h2>Family conversations</h2>
+          <p>Recently Viewed</p>
+          <h2>Profiles you checked recently</h2>
         </div>
-        <MessageCircle size={34} />
+        <Eye size={34} />
       </section>
 
       <div className="conversation-list">
@@ -1993,7 +2308,7 @@ function BottomNav({ activeTab, onTabChange }) {
   const tabs = [
     { id: "home", label: "Matches", icon: Heart },
     { id: "matches", label: "Shortlist", icon: FileText },
-    { id: "messages", label: "Interest", icon: Send },
+    { id: "messages", label: "Recently Viewed", icon: Eye },
     { id: "profile", label: "Profile", icon: UserRound },
   ];
 
